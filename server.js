@@ -15,23 +15,32 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Our own middleware that checks if the database is connected before going to our endpoints
+app.use((req, res, next) => {
+	if (mongoose.connection.readyState === 1) {
+		next();
+	} else {
+		res.status(503), json({ error: "Service unavailable" });
+	}
+});
+
 const Show = mongoose.model("Show", {
-	show_id: Number,
+	id: Number,
 	title: String,
 	director: String,
 	cast: String,
 	country: String,
-	date_added: String,
-	release_year: Number,
+	dateAdded: String,
+	releaseYear: Number,
 	rating: String,
 	duration: String,
-	listed_in: String,
+	listedIn: String,
 	description: String,
 	type: String,
 });
 
 if (process.env.RESET_DB) {
-	const seedDatabase = () => {
+	const seedDatabase = /*async*/ () => {
 		// await Show.deleteMany({})
 
 		netflixData.forEach((item) => {
@@ -45,6 +54,44 @@ if (process.env.RESET_DB) {
 // Start defining your routes here
 app.get("/", (req, res) => {
 	res.send("Hello world");
+});
+
+// Endpoint that gets all the shows
+app.get("/shows", async (req, res) => {
+	console.log(req.query);
+	const shows = await Show.find(req.query);
+
+	if (req.query.releaseYear) {
+		const showByYear = (await Show.find()).gt(
+			"releaseYear",
+			req.query.releaseYear
+		);
+		shows = showByYear;
+	} // Add error-handeling here
+
+	res.json(shows);
+});
+
+// Endpoint that gets one show based on id
+app.get("/shows/id/:id", async (req, res) => {
+	try {
+		const { id } = req.params;
+		const showById = await Show.findById(id);
+
+		if (showById) {
+			res.json({
+				response: showById,
+				success: true,
+			});
+		} else {
+			res.status(404).json({
+				response: `No show found with id number ${id}`,
+				success: false,
+			});
+		}
+	} catch (err) {
+		res.status(400).json({ error: "ID is invalid" });
+	}
 });
 
 // Start the server
