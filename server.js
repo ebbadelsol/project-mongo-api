@@ -62,7 +62,7 @@ app.get("/shows", async (req, res) => {
 	console.log(req.query);
 	let shows = await Show.find(req.query);
 
-	// query that gets release year greater than
+	////////////// query that gets release year greater than
 	if (req.query.releaseYear) {
 		const showByYear = await Show.find().gt(
 			"releaseYear",
