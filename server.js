@@ -60,16 +60,17 @@ app.get("/", (req, res) => {
 // Endpoint that gets all the shows
 app.get("/shows", async (req, res) => {
 	console.log(req.query);
-	let shows = await Show.find(req.query);
+	const shows = await Show.find(req.query);
 
 	// query that gets release year greater than
-	if (req.query.releaseYear) {
-		const showByYear = await Show.find().gt(
-			"releaseYear",
-			req.query.releaseYear
-		);
-		shows = showByYear;
-	} // Add error-handeling here
+	// if (req.query.releaseYear) {
+	// 	const showByYear = await Show.find().gt(
+	// 		"releaseYear",
+	// 		req.query.releaseYear
+	// 	);
+	// 	shows = showByYear;
+	// }
+	// Add error-handeling here
 
 	res.json(shows);
 });
