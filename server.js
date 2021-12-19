@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import listEndpoints from "express-list-endpoints";
 
 import netflixData from "./data/netflix-titles.json";
 
@@ -41,7 +42,7 @@ const Show = mongoose.model("Show", {
 
 if (process.env.RESET_DB) {
 	const seedDatabase = /*async*/ () => {
-		// await Show.deleteMany({})
+		// await Show.deleteMany({});
 
 		netflixData.forEach((item) => {
 			const newShow = new Show(item);
@@ -51,15 +52,15 @@ if (process.env.RESET_DB) {
 	seedDatabase();
 }
 
-// Start defining your routes here
+// listEndpoint will analyse what possible endpoints we have in our app.
 app.get("/", (req, res) => {
-	res.send("Hello world");
+	res.send(listEndpoints(app));
 });
 
 // Endpoint that gets all the shows
 app.get("/shows", async (req, res) => {
 	console.log(req.query);
-	const shows = await Show.find(req.query);
+	let shows = await Show.find(req.query);
 
 	if (req.query.releaseYear) {
 		const showByYear = (await Show.find()).gt(
